@@ -1,0 +1,255 @@
+<apex:page showHeader="false" standardStylesheets="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0" standardController="ProjectDefinition__c" extensions="ProjectSetupController,RemoteServices">
+<html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"> 
+
+	<head>
+		<link rel="stylesheet" type="text/css"  href="{!URLFOR($Resource.ci_sr, 'vendor/slds/assets/styles/salesforce-lightning-design-system-vf.css')}"></link>
+	</head>
+
+	<body>
+		<!-- REQUIRED SLDS WRAPPER -->
+		<div class="slds">  
+
+			<!-- MASTHEAD -->
+			<div class="slds-text-heading--medium">
+				PROJECT SETUP PAGE
+			</div>
+			<br/>
+			<!-- / MASTHEAD -->
+
+			<!-- PRIMARY CONTENT WRAPPER -->
+			<apex:outputPanel rendered="{!githubTokenPresent == true && ciTokenPresent == true}">
+				<div class="app">   
+					<div id="responses"></div>
+					<div id="loader" style="display:none">
+						<div class="slds-spinner--medium" style="display:inline-block">
+							<img src="{!URLFOR($Resource.ci_sr, 'vendor/slds/assets/images/spinners/slds_spinner.gif')}" alt="Loading..." />
+						</div>
+						<span id="loaderText"></span>
+					</div>
+				</div>
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!!(githubTokenPresent == true && ciTokenPresent == true)}">
+				<apex:form >
+					<apex:actionFunction action="{!routeToUserSetup}" name="userSetup"></apex:actionFunction>
+					<apex:actionFunction action="{!routeToHome}" name="goToCiHome"></apex:actionFunction>
+					You need to setup your GitHub and CircleCI tokens before running Project Setup.  You can do so <a href="#" onclick="userSetup();">here</a>.
+				</apex:form>
+			</apex:outputPanel>
+			<!-- / PRIMARY CONTENT WRAPPER -->    
+
+		</div>
+		<!-- / REQUIRED SLDS WRAPPER -->
+	</body>
+
+	<script type="text/javascript" src="{!URLFOR($Resource.ci_sr, 'vendor/jquery-2.1.4.min.js')}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.ci_sr, 'vendor/q.js')}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.ci_sr, 'vendor/premote.js')}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.ci_sr, 'vendor/underscore-min.js')}"></script>
+	
+	<script type="text/template" id="template-response">
+		<div class="slds-box slds-theme--<%- responseClass %>">
+		  	<p>
+		  		<%- responseText %>
+		    </p>
+		</div>
+	</script>
+
+	<script>
+		var app = app || {};
+		app.parameters = {
+			projectDefinitionId : '{!projectDefinitionId}',
+			payload: '',
+			processStep: 0
+		};
+		app.services = {
+			createWizardProject : Premote.wrap('{!$RemoteAction.RemoteServices.createWizardProject}'),
+			createRepo : Premote.wrap('{!$RemoteAction.RemoteServices.createRepo}'),
+			updateBuildProperties : Premote.wrap('{!$RemoteAction.RemoteServices.updateBuildProps}'),
+			addCircleResources : Premote.wrap('{!$RemoteAction.RemoteServices.addCircleResources}'),
+			circleWatchRepo : Premote.wrap('{!$RemoteAction.RemoteServices.circleWatchRepo}'),
+			createTeamMembers : Premote.wrap('{!$RemoteAction.RemoteServices.createTeamMembers}'),
+			createEnvironments : Premote.wrap('{!$RemoteAction.RemoteServices.createEnvironments}')
+		};
+		app.templates = {
+			response : _.template($( "#template-response" ).html())
+		};
+		app.ui = {
+			createResponse_Success : function(responseText){
+				var data = {
+					responseClass : "success slds-theme--inverse-text",
+					responseText : responseText
+				}
+				return app.templates.response(data);
+			},
+			createResponse_Error : function(responseText){
+				var data = {
+					responseClass : "error slds-theme--inverse-text",
+					responseText : responseText
+				}
+				return app.templates.response(data);
+			}
+		};
+
+		app.init = function(){
+			console.log('Start CI initialization process');
+    		
+    		var createProject = function(){
+    			var title = 'Create Project Definition';
+    			showLoader(title);
+    			return app.services.createWizardProject(app.parameters.payload)
+    			.then(function(response){
+    				console.log(response);
+	    			app.parameters.projectDefinitionId = response.Id;
+					$("#loader").hide();
+					$('#responses').append(app.ui.createResponse_Success(
+						title+': Success'
+					));
+	    			return response;
+    			})
+    			.fail(function(error){
+					processError(error,title);
+				})
+    		};
+    		var createRepo = function(){
+    			var title = 'Creating Repo in GitHub';
+    			showLoader(title);
+    			return app.services.createRepo(app.parameters.projectDefinitionId)
+    			.then(function(response){
+    				console.log(response);
+					$("#loader").hide();
+					$('#responses').append(app.ui.createResponse_Success(
+						title+': Success'
+					));
+	    			return response;
+    			})
+    			.fail(function(error){
+					processError(error,title);
+				})
+    		};
+    		var addCircleResources = function(){
+    			var title = 'Inject Circle-Start files in Repository';
+    			showLoader(title);
+    			return app.services.addCircleResources(app.parameters.projectDefinitionId)
+    			.then(function(response){
+    				console.log(response);
+					$("#loader").hide();
+					$('#responses').append(app.ui.createResponse_Success(
+						title+': Success'
+					));
+	    			return response;
+    			})
+    			.fail(function(error){
+					processError(error,title);
+				})
+    		};
+    		var updateBuildProperties = function(){
+    			var title = 'Update Build Properties in Repository';
+    			showLoader(title);
+    			return app.services.updateBuildProperties(app.parameters.projectDefinitionId)
+    			.then(function(response){
+    				console.log(response);
+					$("#loader").hide();
+					$('#responses').append(app.ui.createResponse_Success(
+						title+': Success'
+					));
+	    			return response;
+    			})
+    			.fail(function(error){
+					processError(error,title);
+				})
+    		};
+    		var circleWatchRepo = function(){
+    			var title = 'CircleCI watch Repository';
+    			showLoader(title);
+    			return app.services.circleWatchRepo(app.parameters.projectDefinitionId)
+    			.then(function(response){
+    				console.log(response);
+					$("#loader").hide();
+					$('#responses').append(app.ui.createResponse_Success(
+						title+': Success'
+					));
+	    			return response;
+    			})
+    			.fail(function(error){
+					processError(error,title);
+				})
+    		};
+    		var createTeamMembers = function(){
+    			var title = 'Create Team Members';
+    			showLoader(title);
+    			return app.services.createTeamMembers(app.parameters.projectDefinitionId)
+    			.then(function(response){
+    				console.log(response);
+					$("#loader").hide();
+					$('#responses').append(app.ui.createResponse_Success(
+						title+': Success'
+					));
+	    			return response;
+    			})
+    			.fail(function(error){
+					processError(error,title);
+				})
+    		};
+    		var createEnvironments = function(){
+    			var title = 'Create Environments';
+    			showLoader(title);
+    			return app.services.createEnvironments(app.parameters.projectDefinitionId)
+    			.then(function(response){
+    				console.log(response);
+					$("#loader").hide();
+					$('#responses').append(app.ui.createResponse_Success(
+						title+': Success'
+					));
+	    			return response;
+    			})
+    			.fail(function(error){
+					processError(error,title);
+				})
+    		};
+
+    		createProject()
+			.then(createRepo)
+			.then(addCircleResources)
+			.then(updateBuildProperties)
+			.then(circleWatchRepo)
+			.then(createTeamMembers)
+			.then(createEnvironments)
+			.catch(function(error){
+				console.log(error);
+			})
+			.done();
+		}
+		function processError(error,message){
+			$("#loader").hide();
+			if(message){
+				message = message + ': ';
+			}
+			console.log(error.message);
+			console.log(app.ui.createResponse_Success(
+				message+error.message
+			));
+			$('#responses').append(app.ui.createResponse_Error(
+				message+error.message
+			));
+		}
+		function processSuccess(message){
+			console.log(response);
+			$("#loader").hide();
+			$('#responses').append(app.ui.createResponse_Success(
+				message+': Success'
+			));
+		}
+		function showLoader(message){
+			$("#loader").show();
+			$("#loaderText").html(message);
+		}
+		// Run on Document ready
+		$(function() {
+    		console.log( "Document Ready" );
+    		app.init();
+		});	
+
+	</script>
+</html>
+	
+</apex:page>

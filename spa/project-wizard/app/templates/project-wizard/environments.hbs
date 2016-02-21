@@ -1,0 +1,26 @@
+<div class="slds-text-heading--label underline">Environments</div>
+
+<p class="slds-text-body--small">Choose which environments you want as part of your project.</p>
+
+<br />
+
+<h3 class="slds-text-heading--label">Name (Branch Name)</h3>
+
+<form class="slds-form">
+	<div class="slds-form-element__control slds-m-vertical--medium">
+		<button {{action "selectAllOrNothing"}} class="slds-button slds-button--neutral slds-button--small">Select All/None</button>
+	</div>
+	{{#each environments key="name" as |env|}}
+		<div class="slds-form-element__control slds-m-vertical--medium">
+			{{input type='checkbox' action="toggleEnv" env=env preventDefault=false checked=env.isSelected}}
+			<label class="slds-form-element__label">
+				{{env.name}} ({{env.branchName}})
+			</label>
+		</div>
+	{{/each}}
+	<div class="slds-form-element__control slds-m-vertical--medium">
+		{{input class="slds-input slds-size--1-of-4" value=customEnvName}}
+		<button {{action "addAnother"}} class="slds-button slds-button--neutral slds-button--green">Add</button>
+	</div>
+	
+</form>

@@ -1,0 +1,3 @@
+<apex:page showHeader="true" sidebar="true" standardController="Environment__c" extensions="OrgSignInController" action="{!redirect}">
+    <apex:messages ></apex:messages>	
+</apex:page>

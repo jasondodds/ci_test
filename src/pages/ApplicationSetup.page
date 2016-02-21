@@ -1,0 +1,75 @@
+<apex:page showHeader="true" standardStylesheets="false" sidebar="true" controller="SetupController" action="{!initPage}">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script>
+	function createRemoteSiteSetting(){
+		// Invoke the Metadata API to create the Remote Site Setting to permit Apex callouts to the Metadata API.
+		var request =
+			'<?xml version="1.0" encoding="utf-8"?>' +
+			'<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'+
+				'<env:Header>' +
+					'<urn:SessionHeader xmlns:urn="http://soap.sforce.com/2006/04/metadata">' +
+						'<urn:sessionId>{!$Api.Session_ID}</urn:sessionId>' +
+					'</urn:SessionHeader>' +
+				'</env:Header>' +
+				'<env:Body>' +
+					'<createMetadata xmlns="http://soap.sforce.com/2006/04/metadata">' +
+						'<metadata xsi:type="RemoteSiteSetting">' +
+							'<fullName>Salesforce_Metadata_API</fullName>' +
+							'<description>Used to access the Salesforce Metadata API.</description>' +
+							'<disableProtocolSecurity>false</disableProtocolSecurity>' +
+							'<isActive>true</isActive>' +
+							'<url>https://{!host}</url>' +
+						'</metadata>' +
+					'</createMetadata>' +
+				'</env:Body>' +
+			'</env:Envelope>';
+
+		var binding = new XMLHttpRequest();
+		binding.open('POST', 'https://{!host}/services/Soap/m/32.0');
+		binding.setRequestHeader('SOAPAction', '""');
+		binding.setRequestHeader('Content-Type', 'text/xml');
+		binding.onreadystatechange = function() {
+			if (this.readyState == 4) {
+				var doc = (new DOMParser()).parseFromString(this.response, 'application/xml');
+				var errors = doc.getElementsByTagName('errors');
+				var response = '';
+				
+				for (var i = 0; i < errors.length; i++){
+					response += errors.item(i).getElementsByTagName('message').item(0).innerHTML + '\n';
+				}
+
+				handleMetadataResponse(response);
+			}
+		}
+		binding.send(request);
+    }
+</script>
+
+<apex:sectionHeader title="Authorization"/>
+
+<apex:form id="form">
+
+<apex:pageMessages />
+
+<apex:actionFunction name="handleMetadataResponse" action="{!handleMetadataResponse}" rerender="form">
+	<apex:param name="metadataResponse" assignTo="{!metadataResponse}" value="{!metadataResponse}"/>
+</apex:actionFunction>
+
+<apex:pageBlock title="Step 1: Create Remote Site Setting">
+	<p>A Remote Site Setting must be setup to allow access to the Metadata API to complete this install process.</p>
+
+	<apex:outputPanel layout="block" rendered="{!hasRemoteSiteSetting}">
+		<br/>
+		<span style="color: green;">Done</span>
+	</apex:outputPanel>	
+
+	<apex:outputPanel layout="block" rendered="{!NOT(hasRemoteSiteSetting)}">
+		<p>Please click the button below to create the Remote Site Setting.</p><br/>
+		<apex:commandButton onclick="createRemoteSiteSetting(); return false;" value="Create Remote Site Setting"/>
+	</apex:outputPanel>
+</apex:pageBlock>
+
+</apex:form>
+
+</apex:page>

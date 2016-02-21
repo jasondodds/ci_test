@@ -1,0 +1,75 @@
+<apex:page showHeader="false" standardStylesheets="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0" controller="UserSetupController" action="{!init}">
+<html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"> 
+
+	<head>
+		<link rel="stylesheet" type="text/css"  href="{!URLFOR($Resource.ci_sr, 'vendor/slds/assets/styles/salesforce-lightning-design-system-vf.css')}"></link>
+	</head>
+
+	<body>
+		<!-- REQUIRED SLDS WRAPPER -->
+		<div class="slds">    
+
+			<!-- MASTHEAD -->
+			<div class="slds-text-heading--medium">
+				USER SETUP PAGE
+			</div>
+			<br/>
+			<!-- / MASTHEAD -->    
+
+			<!-- PRIMARY CONTENT WRAPPER -->
+			<div class="app">
+				<apex:form >
+					<div class="slds-grid">
+						<div class="slds-col">
+							<div class="slds-text-heading--label">GitHub Setup</div>
+							<br/>
+							<apex:outputPanel rendered="{!githubTokenPresent == true}">
+								<span class="slds-badge slds-theme--inverse">You are connected to GitHub</span>
+							</apex:outputPanel>
+							<apex:outputPanel rendered="{!githubTokenPresent != true}">
+								<p>Click the button below to connect to GitHub</p>
+								<br/>
+								<apex:commandButton value="Connect to Github" action="{!githubOAuth}" styleClass="slds-button slds-button--neutral"/>
+							</apex:outputPanel>
+						</div>
+						<div class="slds-col">
+							<div class="slds-text-heading--label">CircleCI Setup</div>
+							<br/>
+							<apex:outputPanel rendered="{!ciTokenPresent == true}">
+								<span class="slds-badge slds-theme--inverse">You are connected to CircleCI</span>
+							</apex:outputPanel>
+							<apex:outputPanel rendered="{!ciTokenPresent != true}">
+								<p>Click on this <a href="https://circleci.com/account/api" target="_blank">link</a> to generate a token to be pasted into the field below</p>
+								<div class="slds-form-element">
+									<div class="slds-form-element__control">
+										<apex:inputText id="ciToken" styleClass="slds-input" value="{!ciToken}"/>
+									</div>
+								</div>
+								<br/>
+								<apex:commandButton value="Connect CircleCI" action="{!saveCIToken}" styleClass="slds-button slds-button--neutral"/>
+							</apex:outputPanel>
+						</div>
+					</div>
+			    </apex:form>   
+
+			</div>
+			<!-- / PRIMARY CONTENT WRAPPER -->    
+
+		</div>
+		<!-- / REQUIRED SLDS WRAPPER -->
+	</body>
+
+	<script type="text/javascript" src="{!URLFOR($Resource.ci_sr, 'vendor/jquery-2.1.4.min.js')}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.ci_sr, 'vendor/underscore-min.js')}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.ci_sr, 'vendor/react.min.js')}"></script>
+
+	<script>
+		// Run on Document ready
+		$(function() {
+    		console.log( "Document Ready" );
+		});	
+	</script>
+
+</html>
+	
+</apex:page>

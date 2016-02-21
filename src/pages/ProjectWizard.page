@@ -1,0 +1,241 @@
+<apex:page docType="html-5.0" showHeader="false" applyBodyTag="false" applyHtmlTag="false" standardStylesheets="false" sidebar="false" standardController="ProjectDefinition__c" extensions="ProjectSetupController,RemoteServices" action="{!checkRouteToUserSetup}">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>ProjectWizard</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="project-wizard/config/environment" content="%7B%22modulePrefix%22%3A%22project-wizard%22%2C%22environment%22%3A%22production%22%2C%22baseURL%22%3A%22/%22%2C%22locationType%22%3A%22none%22%2C%22EmberENV%22%3A%7B%22FEATURES%22%3A%7B%7D%7D%2C%22APP%22%3A%7B%22name%22%3A%22project-wizard%22%2C%22version%22%3A%220.0.0+90688dd3%22%7D%2C%22contentSecurityPolicy%22%3A%7B%22style-src%22%3A%22*%20%27unsafe-inline%27%22%2C%22font-src%22%3A%22*%22%2C%22img-src%22%3A%22*%22%2C%22connect-src%22%3A%22self%20ws%3A//localhost%3A49152%20ws%3A//0.0.0.0%3A49152%20http%3A//undefined%3A4200/csp-report%20https%3A//api.github.com%22%2C%22default-src%22%3A%22%27none%27%22%2C%22script-src%22%3A%22%27self%27%22%2C%22media-src%22%3A%22%27self%27%22%7D%2C%22contentSecurityPolicyHeader%22%3A%22Content-Security-Policy-Report-Only%22%2C%22exportApplicationGlobal%22%3Afalse%7D" />
+
+    <apex:stylesheet value="{!URLFOR($Resource.Ember, '/assets/vendor.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.Ember, '/assets/project-wizard.css')}" />    
+  </head>
+  <body>
+    <apex:remoteObjects jsNamespace="RemoteObjectModel">
+      <apex:remoteObjectModel name="ProjectDefinition__c" jsShorthand="ProjectDefinition" fields="Id,Name,Description__c,Namespace__c,Package_Name__c,Repo_Name__c,Repo_Url__c"/>
+      <apex:remoteObjectModel name="Environment__c" jsShorthand="Environment" fields="Id,Name,Branch_Name__c,CI_Project_Definition__c,Namespace__c,Packaging__c,Parent_Environment__c,Production__c,Signup_Request_Status__c"/>
+      <apex:remoteObjectModel name="Team_Member__c" jsShorthand="TeamMember" fields="Id,Name,Contact__c,Email__c,First_Name__c,Last_Name__c,Github_Handle__c,Processed__c,Project_Definition__c"/>
+      <apex:remoteObjectModel name="Contact" fields="Id,Name,FirstName,LastName,Email,GitHub_Handle__c"/>
+    </apex:remoteObjects>
+    <apex:includeScript value="{!URLFOR($Resource.Ember, '/assets/vendor.js')}" loadOnReady="true" />
+    <apex:includeScript value="{!URLFOR($Resource.Ember, '/assets/project-wizard.js')}" loadOnReady="true" />
+  </body>
+
+  <script type="text/javascript" src="{!URLFOR($Resource.ci_sr, 'vendor/jquery-2.1.4.min.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.ci_sr, 'vendor/q.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.ci_sr, 'vendor/premote.js')}"></script>
+
+  <script>
+    var appLocal = appLocal || {};
+    appLocal.parameters = {
+      projectDefinitionId : '{!projectDefinitionId}',
+      payload: '/* SET THE PAYLOAD FROM EMBER DATA */',
+      processStep: 0,
+      spinnerSrc: "{!URLFOR($Resource.ci_sr, 'vendor/slds/assets/images/spinners/slds_spinner.gif')}"
+    };
+    appLocal.services = {
+      createWizardProject : Premote.wrap('{!$RemoteAction.RemoteServices.createWizardProject}'),
+      createRepo : Premote.wrap('{!$RemoteAction.RemoteServices.createRepo}'),
+      updateBuildProperties : Premote.wrap('{!$RemoteAction.RemoteServices.updateBuildProps}'),
+      seedRepos : Premote.wrap('{!$RemoteAction.RemoteServices.seedRepos}'),
+      addCircleResources : Premote.wrap('{!$RemoteAction.RemoteServices.addCircleResources}'),
+      circleWatchRepo : Premote.wrap('{!$RemoteAction.RemoteServices.circleWatchRepo}'),
+      createTeamMembers : Premote.wrap('{!$RemoteAction.RemoteServices.createTeamMembers}'),
+      createEnvironments : Premote.wrap('{!$RemoteAction.RemoteServices.createEnvironments}')
+    };
+    appLocal.ui = {
+      createResponse_Success : function(responseText){
+        return '<div class="slds-box slds-theme--success slds-theme--inverse-text"><p>' +
+          responseText +
+          '</p></div>';
+      },
+      createResponse_Error : function(responseText){
+        return '<div class="slds-box slds-theme--error slds-theme--inverse-text"><p>' +
+          responseText +
+          '</p></div>';
+      }
+    };
+
+    appLocal.init = function(){
+      console.log('Start CI initialization process');
+
+      // assign spinner url to spinner
+      $('#loader .slds-spinner--medium img').attr('src', appLocal.parameters.spinnerSrc);
+        
+        var createProject = function(){
+          var title = 'Create Project Definition';
+          showLoader(title);
+          return appLocal.services.createWizardProject(appLocal.parameters.payload)
+          .then(function(response){
+            console.log(response);
+            appLocal.parameters.projectDefinitionId = response.Id;
+            $("#loader").hide();
+            $('#responses').append(appLocal.ui.createResponse_Success(
+              title+': Success'
+            ));
+              return response;
+            })
+            .fail(function(error){
+            processError(error,title);
+          })
+        };
+        var createRepo = function(){
+          var title = 'Creating Repo in GitHub';
+          showLoader(title);
+          return appLocal.services.createRepo(appLocal.parameters.projectDefinitionId)
+          .then(function(response){
+            console.log(response);
+            $("#loader").hide();
+            $('#responses').append(appLocal.ui.createResponse_Success(
+              title+': Success'
+            ));
+              return response;
+            })
+            .fail(function(error){
+            processError(error,title);
+          })
+        };
+        var addCircleResources = function(){
+          var title = 'Inject Circle-Start files in Repository';
+          showLoader(title);
+          return appLocal.services.addCircleResources(appLocal.parameters.projectDefinitionId)
+          .then(function(response){
+            console.log(response);
+            $("#loader").hide();
+            $('#responses').append(appLocal.ui.createResponse_Success(
+              title+': Success'
+            ));
+              return response;
+            })
+            .fail(function(error){
+            processError(error,title);
+          })
+        };
+        var updateBuildProperties = function(){
+          var title = 'Update Build Properties in Repository';
+          showLoader(title);
+          return appLocal.services.updateBuildProperties(appLocal.parameters.projectDefinitionId)
+          .then(function(response){
+            console.log(response);
+            $("#loader").hide();
+            $('#responses').append(appLocal.ui.createResponse_Success(
+              title+': Success'
+            ));
+              return response;
+            })
+        };
+        var seedRepos = function(){
+          var title = 'Seeding Accelerator Repositories';
+          showLoader(title);
+          return appLocal.services.seedRepos(appLocal.parameters.payload, appLocal.parameters.projectDefinitionId)
+          .then(function(response){
+            console.log(response);
+            $("#loader").hide();
+            $('#responses').append(appLocal.ui.createResponse_Success(
+              title+': Success'
+            ));
+              return response;
+            })
+            .fail(function(error){
+            processError(error,title);
+          })
+        };
+        var circleWatchRepo = function(){
+          var title = 'CircleCI watch Repository';
+          showLoader(title);
+          return appLocal.services.circleWatchRepo(appLocal.parameters.projectDefinitionId)
+          .then(function(response){
+            console.log(response);
+            $("#loader").hide();
+            $('#responses').append(appLocal.ui.createResponse_Success(
+              title+': Success'
+            ));
+              return response;
+            })
+            .fail(function(error){
+            processError(error,title);
+          })
+        };
+        var createTeamMembers = function(){
+          var title = 'Create Team Members';
+          showLoader(title);
+          return appLocal.services.createTeamMembers(appLocal.parameters.payload, appLocal.parameters.projectDefinitionId)
+          .then(function(response){
+            console.log(response);
+            $("#loader").hide();
+            $('#responses').append(appLocal.ui.createResponse_Success(
+              title+': Success'
+            ));
+              return response;
+            })
+            .fail(function(error){
+            processError(error,title);
+          })
+        };
+        var createEnvironments = function(){
+          var title = 'Create Environments';
+          showLoader(title);
+          return appLocal.services.createEnvironments(appLocal.parameters.payload, appLocal.parameters.projectDefinitionId)
+          .then(function(response){
+            console.log(response);
+            $("#loader").hide();
+            $('#responses').append(appLocal.ui.createResponse_Success(
+              title+': Success'
+            ));
+              return response;
+            })
+            .fail(function(error){
+            processError(error,title);
+          })
+        };
+
+      createProject()
+      .then(createRepo)
+      .then(seedRepos)
+      .then(addCircleResources)
+      .then(updateBuildProperties)
+      .then(createTeamMembers)
+      .then(createEnvironments)
+      .then(circleWatchRepo)
+      .catch(function(error){
+        console.log(error);
+      })
+      .done();
+    };
+
+    function processError(error,message){
+      $("#loader").hide();
+      if(message){
+        message = message + ': ';
+      }
+      console.log(error.message);
+      console.log(appLocal.ui.createResponse_Success(
+        message+error.message
+      ));
+      $('#responses').append(appLocal.ui.createResponse_Error(
+        message+error.message
+      ));
+    }
+
+    function processSuccess(message){
+      console.log(response);
+      $("#loader").hide();
+      $('#responses').append(appLocal.ui.createResponse_Success(
+        message+': Success'
+      ));
+    }
+
+    function showLoader(message){
+      $("#loader").show();
+      $("#loaderText").html(message);
+    }
+
+    // Run on Document ready
+    $(function() {
+        console.log( "Document Ready - LETS ROCK OUT!!!!" );
+        /* CALL THE LINE BELOW TO RUN THE DEPLOY FUNCTIONALITY
+        appLocal.init();*/
+    }); 
+
+  </script>
+</apex:page>

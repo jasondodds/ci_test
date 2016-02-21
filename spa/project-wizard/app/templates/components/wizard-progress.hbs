@@ -1,0 +1,7 @@
+<div class="slds-grid">
+	<ul class="slds-list--horizontal wizard-progress-list slds-container--right slds-container--large slds-m-vertical--medium">
+		{{#each progressSteps as |progressStep|}}
+			{{#link-to progressStep.route tagName="li" class="slds-list__item slds-p-right--small progress-item"}}{{progressStep.name}}{{/link-to}}
+		{{/each}}
+	</ul>
+</div>
