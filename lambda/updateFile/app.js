@@ -7,7 +7,6 @@ exports.handler = function(event, context) {
 
 	var test_payload = {
 	  "options":  {
-	        "authtoken":"4f3172ceaa6e801b3e69129ac754c6fb8dc2d949",
 	        "source":{
 	            "repo":"CodeScience/circle-start",
 	            "branch":"ci-accelerator",
