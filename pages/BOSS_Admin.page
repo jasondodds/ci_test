@@ -1,0 +1,369 @@
+<apex:page showHeader="true" standardStylesheets="false" sidebar="true" applyBodyTag="false" docType="html-5.0" controller="Setup" action="{!RenderCampaigns}">
+
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <apex:stylesheet value="{!URLFOR($Resource.SLDS121, 'SLDS12.1/assets/styles/salesforce-lightning-design-system-vf.css')}" />
+  <apex:stylesheet value="{!URLFOR($Resource.SLDS121, 'SLDS12.1/assets/icons/utility-sprite/svg/symbols.svg')}" />
+
+</head>
+<style>
+  html body.sfdcBody {
+      /* fix for Aloha and Lightning Experience */
+      padding: 0!important;
+  }
+  #passwordSpan { display: block }
+  #tokenSpan { display: none }
+  label.slds-form-element__label {
+      min-width: 100px;
+      font-weight: bold;
+  }
+  #instruction { margin-top: 2rem }
+  .slds-form-element__label--top { text-align: left }
+  label.slds-checkbox { margin-right: 30px }
+  .slds-box {
+      padding: 15px 0 0 0!important;
+      overflow: hidden;
+  }
+  .slds-box--table { overflow: scroll }
+  .slds .slds-section-title--divider { margin: 0 }
+  .slds-list--vertical li { min-height: 70px }
+  /* to fix SLDS lookup with legacy code */
+  .lookupInput a {
+      display: block;
+      position: absolute;
+      top: 0px;
+  }
+  .lookupInput img {
+      float: right;
+      background: url("{!URLFOR($Resource.SLDS121, 'SLDS12.1/assets/icons/utility/search_60.png')}");
+      width: 20px;
+      background-size: contain;
+  }
+  span.lookupInput {
+      position: relative;
+      display: inherit;
+  }
+  .lookupInput a {
+      border: none !important;
+      background: none !important;
+  }
+</style>
+
+<body>
+
+
+  <div class="slds">
+
+    <header class="slds-page-header slds-m-bottom--large">
+      <div id="instruction" class="slds-text-heading--small slds-m-bottom--medium">        
+        <span class="slds-text-heading--large">BOSS Configuration Settings</span>
+      </div>
+    </header>
+       <apex:outputPanel id="prefsMessages">
+         <apex:outputPanel id="messageErrors">
+             <div class="slds-box" style="display:{!IF(settingsErrorList.size>0,'block','none')}">
+                 <ul>
+                     <apex:repeat value="{!settingsErrorList}" var="error" id="settingsErrorList">
+                         <li>
+                             <h3 class="slds-text-heading--label" style="color:red;">
+                                 <apex:outputText value="{!error}"/>
+                             </h3>
+                         </li>
+                     </apex:repeat>
+                 </ul>
+             </div>
+         </apex:outputPanel>
+   </apex:outputPanel>
+    <section class="slds-container slds-box slds-m-bottom--medium">
+      <h3 class="slds-section-title--divider slds-section-title section-group--is-open">
+        <a href="#">
+          <img src="{!URLFOR($Resource.SLDS121, '/SLDS12.1/assets/icons/utility/switch_60.png')}" style="width: 18px; margin-top: -4px;" />
+         Settings
+        </a>
+      </h3>
+
+      <div class="slds-m-bottom--small slds-p-around--small">
+        <apex:form >
+        <div class="slds-grid">
+          <div class="slds-col slds-size--1-of-2">
+            <ul class="slds-list--vertical slds-has-block-links--space">
+              <li class="slds-list__item slds-clearfix slds-grid">
+                <div class="slds-col">
+                  <h4 class="slds-text-heading--small slds-m-top--small">Service Order Credentials:</h4> 
+                </div>
+                <div class="slds-col">
+                  <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--small slds-float--right slds-m-around--small" value="Service Order" onclick="window.open('apex/CHANNEL_ORDERS__SFDCIntegrationCredentials'); return false;"/> 
+                </div>
+              </li>
+              <li class="slds-list__item slds-clearfix slds-grid">
+                <div class="slds-col">
+                  <h4 class="slds-text-heading--small slds-m-top--small">Historical Data Utility</h4> 
+                  <small class="muted">Use this utility to query historical service order data and create necessary BOSS orders and details needed to facilitate reporting in the BOSS app.</small>
+                </div>
+                <div class="slds-col">
+                  <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--small slds-float--right slds-m-around--small" value="Update Historical Orders" action="{!RetroUpdate}" /> 
+                </div>
+              </li>
+            </ul>
+          </div>
+        
+        </div>
+        
+        </apex:form>
+      </div>
+    </section>
+    
+    <section class="slds-container slds-box slds-m-bottom--medium">
+      <h3 class="slds-section-title--divider slds-section-title section-group--is-open">
+        <a href="#">
+          <img src="{!URLFOR($Resource.SLDS121, '/SLDS12.1/assets/icons/utility/switch_60.png')}" style="width: 18px; margin-top: -4px;" />
+         Trigger Settings
+        </a>
+      </h3>
+        <div class="slds-m-bottom--small slds-p-around--small">
+            <apex:form >
+                <div>
+                    <label class="slds-checkbox" for="opptyLineItemTrigger">
+                        <input name="checkbox" type="checkbox" id="opptyLineItemTrigger" value="{!EnableOpptyLineTrigger}" onclick="changeValue(this,'{!$Component.opptyLineItemTriggerValue}');"/>
+                        <span class="slds-checkbox--faux"></span>
+                        <span class="slds-form-element__label">Enable Opportunity Line Item Trigger</span>
+                    </label>
+        
+                    <apex:inputHidden id="opptyLineItemTriggerValue" value="{!EnableOpptyLineTrigger}" />
+        
+                    <script>
+                      var eltrigger=document.getElementById('{!$Component.opptyLineItemTriggerValue}');
+                      var eltriggerchk=document.getElementById('opptyLineItemTrigger');
+        
+                      eltriggerchk.checked= (eltrigger.value === "true") ? true : false;
+                    </script>
+                </div>
+                <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--small slds-m-vertical--small" id="btnSaveTriggerSettings" value="Save Triggers" action="{!SaveCustomSettings}"/>
+            </apex:form>
+        </div>
+    </section>
+
+    <section class="slds-container slds-box slds-m-bottom--medium">
+      <h3 class="slds-section-title--divider slds-section-title section-group--is-open">
+        <a href="#">
+          <img src="{!URLFOR($Resource.SLDS121, '/SLDS12.1/assets/icons/utility/switch_60.png')}" style="width: 18px; margin-top: -4px;" />
+          Batch Operation
+        </a>
+      </h3>
+
+      <div class="slds-m-bottom--small slds-p-around--small">
+      <apex:form >
+        <div class="slds-grid">
+          <div class="slds-col slds-size--1-of-2">
+            <div class="slds-col">
+                <h4 class="slds-text-heading--small slds-m-top--small">Batch Options:</h4>
+              </div>
+
+              <!-- Working VERSION OF THE CHECKBOXES -->
+                      <div class="slds-form-element slds-p-vertical--small">
+                        <label class="slds-checkbox" for="leadMerge">
+                          <input name="checkbox" type="checkbox" id="leadMerge" onclick="changeValue(this,'{!$Component.leadMergeValue}');"/>
+                          <span class="slds-checkbox--faux"></span>
+                          <span class="slds-form-element__label">Lead Merge</span>
+                        </label>
+
+                        <apex:inputHidden id="leadMergeValue" value="{!LeadMerge}" />
+
+                        <label class="slds-checkbox" for="convertLead">
+                          <input name="checkbox" type="checkbox" id="convertLead" value="{!ConvertLeadToContact}" onclick="changeValue(this,'{!$Component.convertLeadValue}');"/>
+                          <span class="slds-checkbox--faux"></span>
+                          <span class="slds-form-element__label">Convert Lead To Contact</span>
+                        </label>
+
+                        <apex:inputHidden id="convertLeadValue" value="{!ConvertLeadToContact}" />
+
+                        <script>
+                          var el1=document.getElementById('{!$Component.leadMergeValue}');
+                          var elchk1=document.getElementById('leadMerge');
+
+                          elchk1.checked= (el1.value === "true") ? true : false;
+
+                          var el=document.getElementById('{!$Component.convertLeadValue}');
+                          var elchk=document.getElementById('convertLead');
+
+                          elchk.checked= (el.value === "true") ? true : false;
+                        </script>
+                    </div>
+                    <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--small slds-m-vertical--small" id="btnSaveSettings" value="Save Settings" action="{!SaveCustomSettings}"/>
+          </div>
+
+          <div class="slds-col slds-size--1-of-2">
+            <div class="slds-grid slds-p-vertical--small">
+              <div class="slds-col">
+                  <h4 class="slds-text-heading--small slds-m-top--small">Manual Batch:</h4>
+                  <apex:outputPanel rendered="{!HasBOSSBatchRunManually}">
+                    <em class="slds-text-body--small slds-muted">Last manual run <span>{!BOSSBatchManualRunTime}</span></em>
+                  </apex:outputPanel>
+                </div>
+                <div class="slds-col">
+                  <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--small slds-float--right slds-m-vertical--small" value="Run Batch Now" action="{!RunNow}" />
+                </div>
+            </div>
+
+            <div class="slds-grid slds-p-vertical--small">
+              <div class="slds-col">
+                  <h4 class="slds-text-heading--small slds-m-top--small">Schedule Batch:</h4> 
+                  <apex:outputPanel rendered="{!IsBOSSBatchScheduled}">
+                      <em class="slds-text-body--small slds-muted">On | Last scheduled run <span>{!BOSSBatchExecutedTime}</span></em>
+                   </apex:outputPanel>
+                   <apex:outputPanel rendered="{!!(IsBOSSBatchScheduled)}">
+                      <em class="slds-text-body--small slds-muted">Off | Last scheduled run <span>{!BOSSBatchExecutedTime}</span></em>
+                    </apex:outputPanel>
+                </div>
+                <div class="slds-col">
+                  <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--small slds-float--right slds-m-vertical--small" id="btnStart" value="Schedule Batch" action="{!Start}" rendered="{!!(IsBOSSBatchScheduled)}"/>
+
+                  <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--small slds-float--right slds-m-vertical--small"  id="btnStop" value="Cancel Batch" action="{!Stop}" rendered="{!IsBOSSBatchScheduled}" />
+                </div>
+            </div>
+          </div>
+        </div>
+      </apex:form>
+      </div>
+    </section>
+
+    <section class="slds-container slds-box slds-m-bottom--medium">
+      <h3 class="slds-section-title--divider slds-section-title section-group--is-open">
+        <a href="#">
+          <img src="{!URLFOR($Resource.SLDS121, '/SLDS12.1/assets/icons/utility/switch_60.png')}" style="width: 18px; margin-top: -4px;" />
+          Campaign Creation
+        </a>
+      </h3>
+
+      <div class="slds-m-bottom--small slds-p-around--small">
+        <apex:form >
+        <div class="slds-grid">
+          <div class="slds-col slds-size--1-of-2">
+            <ul class="slds-list--vertical slds-has-dividers--bottom slds-has-block-links--space">
+              <li class="slds-list__item slds-clearfix slds-grid">
+                <div class="slds-col slds-size--1-of-2">
+                  <h4 class="slds-text-heading--small slds-m-top--small">App Install Campaign:</h4>
+                    <em id="AppInstallCampaignID" class="slds-text-body--small slds-muted"><apex:outputText value="{!CreatedAppInstalledCampaign}" /></em> 
+                </div>
+                <apex:outputPanel styleClass="slds-col slds-size--1-of-2" layout="block" rendered="{!RenderInstalledCampaign}">
+                      <label class="slds-checkbox slds-m-top--small">
+                        <apex:inputCheckbox value="{!IsAppInstalledCampaign}" />
+                        <span class="slds-checkbox--faux"></span>
+                        <span class="slds-form-element__label">Create App Install Campaign</span>
+                      </label>
+                </apex:outputPanel>
+              </li>
+              <li class="slds-list__item slds-clearfix slds-grid">
+                <div class="slds-col slds-size--1-of-2">
+                  <h4 class="slds-text-heading--small slds-m-top--small">Test Drive Campaign:</h4> 
+                    <em class="slds-text-body--small slds-muted"><apex:outputText value="{!CreatedTestDriveCampaign}" /></em>
+                </div>
+                <apex:outputPanel styleClass="slds-col slds-size--1-of-2" layout="block" rendered="{!RenderTestDriveCampaign}">
+                      <label class="slds-checkbox slds-m-top--small">
+                        <apex:inputCheckbox value="{!IsTestDriveCampaign}" />
+                        <span class="slds-checkbox--faux"></span>
+                        <span class="slds-form-element__label">Create Test Drive Campaign</span>
+                      </label>
+                </apex:outputPanel>
+              </li>
+              <li class="slds-list__item slds-clearfix slds-grid">
+                <div class="slds-col slds-size--1-of-2">
+                  <h4 class="slds-text-heading--small slds-m-top--small">Trialforce Campaign:</h4> 
+                    <em class="slds-text-body--small slds-muted"><apex:outputText value="{!CreatedTrialForceCampaign}" /></em> 
+                </div>
+                <apex:outputPanel styleClass="slds-col slds-size--1-of-2" layout="block" rendered="{!RenderTrialForceCampaign}">
+                      <label class="slds-checkbox slds-m-top--small">
+                        <apex:inputCheckbox value="{!IsTrialForceCampaign}" />
+                        <span class="slds-checkbox--faux"></span>
+                        <span class="slds-form-element__label">Create Trialforce Campaign</span>
+                      </label>
+                </apex:outputPanel>
+              </li>
+              <li class="slds-list__item slds-clearfix slds-grid">
+                <div class="slds-col slds-size--1-of-2">
+                  <h4 class="slds-text-heading--small slds-m-top--small">Demo Video Campaign:</h4>
+                    <em class="slds-text-body--small slds-muted"><apex:outputText value="{!CreatedDemoVideoCampaign}" /></em> 
+                </div>
+                <apex:outputPanel styleClass="slds-col slds-size--1-of-2" layout="block" rendered="{!RenderDemoVideoCampaign}">
+                      <label class="slds-checkbox slds-m-top--small ">
+                        <apex:inputCheckbox value="{!IsDemoVideoCampaign}" />
+                        <span class="slds-checkbox--faux"></span>
+                        <span class="slds-form-element__label">Create Demo Video Campaign</span>
+                      </label>
+                </apex:outputPanel>
+              </li>
+            </ul>
+            <div class="slds-col">
+              <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--small slds-float--right slds-m-vertical--small" id="btnCreate" value="Create Campaigns" action="{!CreateCampaigns}" rendered="{!CanCreateCampaigns}" />
+            </div>
+          </div>
+          
+        </div>
+        </apex:form>
+      </div>
+    </section>
+    
+    <!-- <section class="slds-container slds-box slds-m-bottom--medium">
+      <h3 class="slds-section-title--divider slds-section-title section-group--is-open">
+        <a href="#">
+          <img src="{!URLFOR($Resource.SLDS121, '/SLDS12.1/assets/icons/utility/switch_60.png')}" style="width: 18px; margin-top: -4px;" />
+          Notification Settings
+        </a>
+        
+      </h3>
+
+      <div class="slds-m-bottom--small slds-p-around--small">
+        <apex:form >
+        <div class="slds-grid">
+          <div class="slds-col slds-size--1-of-2">
+            <ul class="slds-list--vertical slds-has-block-links--space">
+              <li class="slds-list__item slds-clearfix slds-grid">
+                <div class="slds-col">
+                  <h4 class="slds-text-heading--small slds-m-top--small">Service Order Notification:</h4> 
+                    <apex:inputCheckbox value="{!IsAppInstalledCampaign}" rendered="{!RenderInstalledCampaign}"/> 
+                    <em id="AppInstallCampaignID" class="slds-text-body--small slds-muted">
+                      Select a user who will receive a notification when a Service Order has been created.
+                    </em> 
+                    <!--IsNotificationRequested-->
+                <!-- </div>
+                <div class="slds-col">
+                  <div class="slds-lookup slds-m-vertical--small" data-select="multi" data-scope="single" data-typeahead="true">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control slds-input-has-icon">
+                      <apex:inputField styleClass="slds-input" type="text" value="{!notificationCon.OwnerId}"/>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--small slds-m-vertical--small"  id="btnSaveNotificationSettings" value="Save Notification Settings" action="{!SaveCustomSettings}"/>
+        </apex:form>
+      </div>
+    </section> -->
+
+</div>
+</body>
+<apex:includeScript value="https://code.jquery.com/jquery-2.1.4.min.js"/>
+<script>
+  function changeValue(input, textid) {
+    document.getElementById(textid).value = input.checked;
+  }
+
+  $(document).ready(function() { 
+    $('#saveAppInstallCampaign').hide();
+    $('.edit').next('.slds-lookup').hide();
+    $('.edit').click(function(event) {
+      event.preventDefault();
+      $(this).next('.slds-lookup').show();
+      $(this).hide();
+    });
+  });
+</script>
+</html>
+</apex:page>

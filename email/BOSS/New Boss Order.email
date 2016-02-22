@@ -1,0 +1,23 @@
+<style>
+ul li {list-style-type: none;}
+a {color:blue;}
+</style>
+<p>
+Dear {!User.FirstName}: 
+</p>
+<p>
+New order records have been created for the <a href="{!BOSS_Order__c.Opportunity_URL__c}">{!BOSS_Order__c.Opportunity__c}</a> Opportunity. 
+</p>
+<p>
+You can access your new items here: 
+<ul>
+	<li><a href="{!BOSS_Order__c.Link}">New BOSS Order</a></li>
+	<li><a href="{!BOSS_Order__c.Service_Order_URL__c}">New Service Order</a></li>
+</ul>
+</p>
+<p>
+Thank you, 
+</p>
+<p>
+The BOSS
+<p>

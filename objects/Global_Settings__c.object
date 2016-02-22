@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>AppInstalledCampaign__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>AppInstalledCampaign</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>BOSS_Convert_Lead_To_Contact__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>Convert Lead To Contact</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>BOSS_Lead_Merge__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>If true, the BOSS Lead Merge class will be called in the batch schedule.</description>
+        <label>BOSS Lead Merge</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Campaign_Inline_Helptext__c</fullName>
+        <label>Campaign_Inline_Helptext</label>
+        <length>200</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>CreatedAppInstalledCampaign__c</fullName>
+        <label>CreatedAppInstalledCampaign</label>
+        <length>18</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>CreatedDemoVideoCampaign__c</fullName>
+        <label>CreatedDemoVideoCampaign</label>
+        <length>18</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>CreatedTestDriveCampaign__c</fullName>
+        <label>CreatedTestDriveCampaign</label>
+        <length>18</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>CreatedTrialForceCampaign__c</fullName>
+        <label>CreatedTrialForceCampaign</label>
+        <length>18</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Enabled_Opportunity_Line_Item_Trigger__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>Enabled Opportunity Line Item Trigger</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>IsDemoVideoCampaign__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>IsDemoVideoCampaign</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>IsTrialForceCampaign__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>IsTrialForceCampaign</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Notification_Feature__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>Notification Feature</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Notification_User__c</fullName>
+        <label>Notification User</label>
+        <length>18</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Opportunity_Renewal__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>Opportunity Renewal</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Price_Book__c</fullName>
+        <label>Price Book</label>
+        <length>18</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>TestDriveCampaign__c</fullName>
+        <defaultValue>false</defaultValue>
+        <label>TestDriveCampaign</label>
+        <type>Checkbox</type>
+    </fields>
+    <label>Global Settings</label>
+</CustomObject>

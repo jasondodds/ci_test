@@ -1,0 +1,10 @@
+<apex:page standardController="CHANNEL_ORDERS__Service_Order__c"
+	recordSetVar="serviceOrders"
+	extensions="SubmitServiceOrderListView"
+	action="{!submitOrders}"
+>
+	<apex:pageBlock >
+	<apex:pageMessages >
+	</apex:pageMessages>
+	</apex:pageBlock>
+</apex:page>

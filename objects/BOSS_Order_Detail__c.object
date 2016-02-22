@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>This object is a core component of the BOSS package. It aggregates all service order detail information together in once place for tracking and reporting. 
+
+Due to some limitations in Salesforce&apos;s capabilities, you will see redundant &apos;formula&apos; fields with similar custom fields without &apos;formula&apos; in their names. Please upvote this idea to eliminate redundancies like this from future builds: https://success.salesforce.com/ideaView?id=08730000000Bra0AAC</description>
+    <enableActivities>true</enableActivities>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>Active__c</fullName>
+        <description>Calculates if today falls between the service order service start date and calculated end date. Used for report filtering.</description>
+        <formula>(TODAY() &gt;= Service_Order_Detail__r.CHANNEL_ORDERS__Partner_Order__r.CHANNEL_ORDERS__Service_Start_Date__c) 
+&amp;&amp; 
+(TODAY() &lt;= Service_Order_Detail__r.CHANNEL_ORDERS__Partner_Order__r.CHANNEL_ORDERS__Service_Start_Date__c + (IF(ISBLANK( Service_Order_Detail__r.CHANNEL_ORDERS__pc_Contract_Length__c), Service_Order_Detail__r.CHANNEL_ORDERS__pc_Partner_Contract_Term__r.CHANNEL_ORDERS__Default_Contract_Length__c / 12, Service_Order_Detail__r.CHANNEL_ORDERS__pc_Contract_Length__c / 12) * 365))</formula>
+        <inlineHelpText>Calculates if today falls between the service order service start date and calculated end date. Checked means the result is TRUE, unchecked means the result is FALSE.</inlineHelpText>
+        <label>Active?</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>BOSS_Order__c</fullName>
+        <label>BOSS Order</label>
+        <referenceTo>BOSS_Order__c</referenceTo>
+        <relationshipLabel>BOSS Order Details</relationshipLabel>
+        <relationshipName>BOSS_Order_Details</relationshipName>
+        <type>MasterDetail</type>
+    </fields>
+    <fields>
+        <fullName>Calculated_Contract_End_Date_Formula__c</fullName>
+        <description>Formula that calculates the implied contract end date by adding the contract length (in months) divided by 12 and then multiplied by 365.</description>
+        <formula>Service_Order_Detail__r.CHANNEL_ORDERS__Partner_Order__r.CHANNEL_ORDERS__Service_Start_Date__c + (IF(ISBLANK( Service_Order_Detail__r.CHANNEL_ORDERS__pc_Contract_Length__c),  Service_Order_Detail__r.CHANNEL_ORDERS__pc_Partner_Contract_Term__r.CHANNEL_ORDERS__Default_Contract_Length__c / 12,  Service_Order_Detail__r.CHANNEL_ORDERS__pc_Contract_Length__c / 12) * 365)</formula>
+        <inlineHelpText>Formula that calculates the implied contract end date by adding the contract length (in months) divided by 12 and then multiplied by 365.</inlineHelpText>
+        <label>Calculated Contract End Date Formula</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Calculated_Contract_End_Date__c</fullName>
+        <description>Set by workflow for the BOSS Order roll-up summary field - calculates the implied contract end date by adding the contract length (in months) divided by 12 and then multiplied by 365.</description>
+        <inlineHelpText>Set by workflow for the BOSS Order roll-up summary field - calculates the implied contract end date by adding the contract length (in months) divided by 12 and then multiplied by 365.</inlineHelpText>
+        <label>Calculated Contract End Date</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Net_ARR_Formula__c</fullName>
+        <description>Formula field for Annual Recurring Revenue (ARR) for the service order detail line item.</description>
+        <formula>CASE( Service_Order_Detail__r.CHANNEL_ORDERS__Partner_Order__r.CHANNEL_ORDERS__Order_Type__c , 
+&quot;Initial&quot;, Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c * 12, 
+&quot;Add-On&quot;, Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c * 12,
+&quot;Reduction&quot;, -1 * Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c * 12,
+&quot;Cancellation Order&quot;, -1 * Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c * 12, 
+&quot;Upgrade - Partner App&quot;, Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c * 12,
+&quot;Upgrade - Org Edition&quot;, Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c * 12, 
+Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c * 12
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Formula field for Annual Recurring Revenue (ARR) for the service order detail line item.</inlineHelpText>
+        <label>Net ARR Formula</label>
+        <precision>18</precision>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Net_ARR__c</fullName>
+        <description>Set by workflow for the BOSS Order roll-up summary field - field for Annual Recurring Revenue (ARR) for the service order detail line item.</description>
+        <inlineHelpText>Set by workflow for the BOSS Order roll-up summary field - field for Annual Recurring Revenue (ARR) for the service order detail line item.</inlineHelpText>
+        <label>Net ARR</label>
+        <precision>18</precision>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Net_MRR_Formula__c</fullName>
+        <description>Formula field for Monthly Recurring Revenue (MRR) for the service order detail line item.</description>
+        <formula>CASE( Service_Order_Detail__r.CHANNEL_ORDERS__Partner_Order__r.CHANNEL_ORDERS__Order_Type__c , 
+&quot;Initial&quot;, Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c, 
+&quot;Add-On&quot;, Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c,
+&quot;Reduction&quot;, -1 * Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c,
+&quot;Cancellation Order&quot;, -1 * Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c, 
+&quot;Upgrade - Partner App&quot;, Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c,
+&quot;Upgrade - Org Edition&quot;, Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c, 
+Service_Order_Detail__r.CHANNEL_ORDERS__Customer_Price_Per_Month__c * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c
+)</formula>
+        <inlineHelpText>Formula field for Monthly Recurring Revenue (MRR) for the service order detail line item.</inlineHelpText>
+        <label>Net MRR Formula</label>
+        <precision>18</precision>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Net_MRR__c</fullName>
+        <description>Set by workflow for the BOSS Order roll-up summary field - field for Monthly Recurring Revenue (MRR) for the service order detail line item.</description>
+        <inlineHelpText>Set by workflow for the BOSS Order roll-up summary field - field for Monthly Recurring Revenue (MRR) for the service order detail line item.</inlineHelpText>
+        <label>Net MRR</label>
+        <precision>18</precision>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Net_Seats_Formula__c</fullName>
+        <description>Formula that calculates the net seats impact from the related service order detail line item record.</description>
+        <formula>CASE( Service_Order_Detail__r.CHANNEL_ORDERS__Partner_Order__r.CHANNEL_ORDERS__Order_Type__c , 
+&quot;Initial&quot;, Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c , 
+&quot;Add-On&quot;, Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c,
+&quot;Reduction&quot;, -1 * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c,
+&quot;Cancellation Order&quot;, -1 * Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c, 
+&quot;Upgrade - Partner App&quot;, 0,
+&quot;Upgrade - Org Edition&quot;, 0, 
+Service_Order_Detail__r.CHANNEL_ORDERS__Quantity__c
+)</formula>
+        <inlineHelpText>Formula that calculates the net seats impact from the related service order detail line item record.</inlineHelpText>
+        <label>Net Seats Formula</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Net_Seats__c</fullName>
+        <description>Set by workflow for the BOSS Order roll-up summary field - calculates the net seats impact from the related service order detail line item record.</description>
+        <inlineHelpText>Set by workflow for the BOSS Order roll-up summary field - calculates the net seats impact from the related service order detail line item record.</inlineHelpText>
+        <label>Net Seats</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Partner_Product__c</fullName>
+        <formula>Service_Order_Detail__r.CHANNEL_ORDERS__Product_Name__r.Name</formula>
+        <label>Partner Product</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Service_Order_Detail__c</fullName>
+        <label>Service Order Detail</label>
+        <referenceTo>CHANNEL_ORDERS__Service_Order_Detail__c</referenceTo>
+        <relationshipLabel>BOSS Order Details</relationshipLabel>
+        <relationshipName>Service_Order_Details</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Service_Start_Date_Formula__c</fullName>
+        <description>From the service order, formula to grab the start date for this product&apos;s license duration.</description>
+        <formula>Service_Order_Detail__r.CHANNEL_ORDERS__Partner_Order__r.CHANNEL_ORDERS__Service_Start_Date__c</formula>
+        <inlineHelpText>From the service order, formula to grab the start date for this product&apos;s license duration.</inlineHelpText>
+        <label>Service Start Date Formula</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Service_Start_Date__c</fullName>
+        <description>Set by workflow for the BOSS Order roll-up summary field - from the service order, the start date for this product&apos;s license duration.</description>
+        <inlineHelpText>Set by workflow for the BOSS Order roll-up summary field - from the service order, the start date for this product&apos;s license duration.</inlineHelpText>
+        <label>Service Start Date</label>
+        <type>Date</type>
+    </fields>
+    <label>BOSS Order Detail</label>
+    <nameField>
+        <displayFormat>BOD-{00000}</displayFormat>
+        <label>BOSS Order Detail Name</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>BOSS Order Details</pluralLabel>
+    <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

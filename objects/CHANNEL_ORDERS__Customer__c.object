@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Related_License__c</fullName>
+        <label>Related License</label>
+        <referenceTo>sfLma__License__c</referenceTo>
+        <relationshipLabel>Customers</relationshipLabel>
+        <relationshipName>Customers</relationshipName>
+        <type>Lookup</type>
+    </fields>
+</CustomObject>
