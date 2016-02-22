@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Active_Days__c</fullName>
+        <description>Calculates number of days since installation date if active; if expired, calculates days between expiration and installation.</description>
+        <formula>IF(ISBLANK(sfLma__Expiration__c), TODAY() - sfLma__Install_Date__c , sfLma__Expiration__c - sfLma__Install_Date__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Active Days</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Active_Months__c</fullName>
+        <description>This displays the number of months the license has been active. If not expired, it calculates the number of months since the installation date. If expired, it calculates the number of months between installation and expiration.</description>
+        <formula>IF(ISBLANK(sfLma__Expiration__c), (TODAY() - sfLma__Install_Date__c)/(365/12) , (sfLma__Expiration__c - sfLma__Install_Date__c)/(365/12))</formula>
+        <inlineHelpText>This displays the number of months the license has been active. If not expired, it calculates the number of months since the installation date. If expired, it calculates the number of months between installation and expiration.</inlineHelpText>
+        <label>Active Months</label>
+        <precision>18</precision>
+        <scale>1</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Active_Seats_for_License_from_Orders__c</fullName>
+        <description>Indicates the total seats for this license across all BOSS Orders. Set by automation in the BOSS order package.</description>
+        <inlineHelpText>Indicates the total seats for this license across all BOSS Orders. Set by automation in the BOSS order package.</inlineHelpText>
+        <label>Active Seats for License from Orders</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Expired__c</fullName>
+        <description>Renders a check if the expiration date is in the past for this license.</description>
+        <formula>sfLma__Expiration__c &lt; TODAY()</formula>
+        <inlineHelpText>Renders a check if the expiration date is in the past for this license.</inlineHelpText>
+        <label>Expired?</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Has_Initial_Order__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Indicates whether the license has an initial order yet or not. Set by automation in the BOSS order package.</description>
+        <inlineHelpText>Indicates whether the license has an initial order yet or not. Set by automation in the BOSS order package.</inlineHelpText>
+        <label>Has Initial Order?</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Internal_Expiration_Date__c</fullName>
+        <label>Internal Expiration Date</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Next_Renewal_Date__c</fullName>
+        <description>Indicates the earliest next renewal for orders linked to this license. Set by automation in the BOSS order package.</description>
+        <inlineHelpText>Indicates the earliest next renewal for orders linked to this license. Set by automation in the BOSS order package.</inlineHelpText>
+        <label>Next Renewal Date</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Number_of_Active_Orders__c</fullName>
+        <description>Indicates the number of active orders on a license. Set by automation in the BOSS order package.</description>
+        <inlineHelpText>Indicates the number of active orders on a license. Set by automation in the BOSS order package.</inlineHelpText>
+        <label>Number of Active Orders</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <webLinks>
+        <fullName>Create_Opportunity</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <height>600</height>
+        <linkType>page</linkType>
+        <masterLabel>Create Opportunity</masterLabel>
+        <openType>noSidebar</openType>
+    </webLinks>
+</CustomObject>

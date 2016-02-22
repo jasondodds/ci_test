@@ -1,0 +1,292 @@
+<apex:page showHeader="true" standardStylesheets="false" sidebar="true" applyBodyTag="false" docType="html-5.0"  StandardController="Opportunity" extensions="CreateOrdersFromOpportunity" action="{!OperationalCheck}">
+
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <apex:stylesheet value="{!URLFOR($Resource.SLDS121, 'SLDS12.1/assets/styles/salesforce-lightning-design-system-vf.css')}" />
+  <apex:stylesheet value="{!URLFOR($Resource.SLDS121, 'SLDS12.1/assets/icons/utility-sprite/svg/symbols.svg')}" />
+
+</head>
+
+<style>
+body {
+      margin: 0; /* reset */
+      /* mimics new standard layout negative space - set main .slds class content to white background */
+      background-color: rgb(244, 246, 249);
+  }
+  /* mimics new standard layout negative space - set main .slds class content to white background */
+  .slds {
+      background-color: #fff!important;
+      /* border-bottom: 1px solid #d8dde6; */
+  }
+  html body.sfdcBody {
+      /* fix for Aloha and Lightning Experience */
+      padding: 0!important;
+  }
+
+  label.slds-form-element__label {
+      min-width: 100px;
+  }
+  .slds-form-element__label--top { text-align: left }
+  
+  /* SLDS version of the SF date field */
+  .slds .dateInput input {
+    max-width: 250px!important;
+  }
+  .slds span.dateFormat {
+    margin-left: 10px;
+  }
+
+
+  /* to fix SLDS lookup with legacy code */
+  .slds .lookupInput a.slds-input {
+      display: block;
+      position: absolute;
+      top: 0px;
+      left:0px;
+      border: none !important;
+      background: none !important;
+  }
+  .slds .lookupInput img {
+      float: right;
+      background: url("{!URLFOR($Resource.SLDS121, 'SLDS12.1/assets/icons/utility/search_60.png')}");
+      width: 20px;
+      background-size: contain;
+      top:7px!important;
+      position: relative;
+  }
+  span.lookupInput {
+      position: relative;
+      display: inherit;
+  }
+  label small.muted {
+      color: #1797c0;
+  }
+
+</style>
+
+<body>
+
+    <div class="slds">
+        
+        <apex:form >
+            <div class="slds-page-header" role="banner">
+              <div class="slds-grid">
+                <div class="slds-col slds-has-flexi-truncate">
+                  <div class="slds-media">
+                    <div class="slds-media__figure slds-icon__container slds-icon__container--circle slds-icon-action-description">
+                      <img class="slds-icon slds-icon--small" src="{!URLFOR($Resource.SLDS121, '/SLDS12.1/assets/icons/custom/custom21_60.png')}" />
+                    </div>
+                    <div class="slds-media__body">
+                      <p class="slds-text-heading--label">BOSS Order</p>
+                      <div class="slds-grid">
+                        <h1 class="slds-text-heading--medium slds-m-right--small slds-truncate slds-align-middle" title="Record Title">New Boss Order</h1>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="slds-col slds-no-flex slds-align-bottom">
+                  <div class="slds-button-group" role="group">
+                        <apex:commandButton styleClass="slds-button slds-button--neutral submit-order-button" value="Create Orders" action="{!CreateOrdersAndRecord}"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <apex:pageMessages />
+
+            <apex:outputPanel styleClass="slds-p-around--small" rendered="{!!hasMessage}">
+            
+                <div class="slds-box slds-theme--shade slds-m-bottom--large slds-container--medium">
+                    <h2 class="slds-text-heading--medium">Looks like <em>ABC Company</em> already has some licenses</h2>
+                    <h3 class="slds-text-heading--small"><small class="muted">We have selected <em>Add-On</em> for you...</small></h3>
+                </div>
+            
+
+                <div class="slds-grid slds-container--medium">
+                    <div class="slds-col slds-m-right--small">
+                        <div class="slds-grid">
+                            <div class="slds-form-element slds-m-bottom--small slds-is-required" style="padding-right: 0; width:250px;">
+                                <label class="slds-form-element__label">Order Type</label>
+                                <div class="slds-form-element__control">
+                                    <apex:inputField id="OrderType" styleClass="slds-select" value="{!service.CHANNEL_ORDERS__Order_Type__c}" />
+                                </div>
+                            </div>
+                            <div class="slds-form-element slds-m-bottom--small slds-is-required" style="margin-left: 10px; width: 100px;">
+                                <label class="slds-form-element__label">Certify?</label>
+                                <div class="slds-form-element__control">
+                                    <apex:inputField styleClass="slds-select" label="Certify?" value="{!service.CHANNEL_ORDERS__I_certify__c}" />
+                                </div>
+                            </div>
+                        </div>
+                            <div class="slds-form-element slds-m-bottom--small slds-is-required">
+                                <label class="slds-form-element__label">
+                                    Service Order Start Date
+                                    <br />
+                                    <small class="muted"><em>Needs to be a future date</em></small>
+                                </label>
+                                <div class="slds-form-element__control">
+                                    <apex:inputField styleClass="slds-input" type="text" label="Service Order Start Date" value="{!service.CHANNEL_ORDERS__Service_Start_Date__c}" />
+                                </div>
+                            </div>
+                            <div class="slds-form-element slds-m-bottom--small slds-is-required">
+                                <label class="slds-form-element__label">Partner Received Customer Order
+                                    <br />
+                                    <small class="muted"><em>When did you receive the order?</em></small>
+                                </label>
+                                <div class="slds-form-element__control">
+                                    <apex:inputField styleClass="slds-input" type="text" label="Partner Received Customer Order" value="{!service.CHANNEL_ORDERS__Date_Partner_Received_Customer_Order__c }"/>
+                                </div>
+                            </div>
+
+                            <div class="slds-form-element slds-m-bottom--small slds-is-required">
+                                <label class="slds-form-element__label">Date Customer Accepted SFDC Aggreement
+                                    <br />
+                                    <small class="muted">When did your customer accept the SFDC Agreement? <em>(OEM only)</em></small>
+                                </label>
+                                <div class="slds-form-element__control">
+                                    <apex:inputField styleClass="slds-input" type="text" label="Customer Accepted SFDC Aggreement" value="{!service.CHANNEL_ORDERS__Date_Customer_Accepted_SFDC_Svc_Agrmnt__c }"/>
+                                </div>
+                            </div>
+
+                            <div class="slds-form-element slds-m-bottom--small slds-is-required">
+                                <label class="slds-form-element__label">Customer Org ID</label>
+                                <div class="slds-form-element__control">
+                                    <apex:inputField styleClass="slds-input" type="text" label="Customer Org ID" value="{!customer.CHANNEL_ORDERS__Customer_Org_ID__c   }"/>
+                                </div>
+                            </div>
+                            <div class="slds-form-element slds-m-bottom--small slds-is-required">
+                                <label class="slds-form-element__label">Partner Contract Rules</label>
+                                <div class="slds-form-element__control">
+                                    <apex:inputField styleClass="slds-input" type="text" label="Partner Contract Rules" value="{!service.CHANNEL_ORDERS__Partner_Contract_Rules__c}"/>
+                                </div>
+                            </div>
+                            
+                    </div>
+                    <div class="slds-col slds-col--padded">
+                            <div class="slds-m-bottom--small slds-box">
+                                <div class="slds-form-element slds-is-required">
+                                    <label class="slds-form-element__label">Which address should we use?</label>
+                                    <div class="slds-form-element__control">
+                                        <apex:selectRadio value="{!whichAddress}">
+                                            <apex:selectOption itemLabel="Account Billing Address" itemValue="billing"/>
+                                            <apex:selectOption itemLabel="Account Shipping Address" itemValue="shipping"/> 
+                                            <apex:actionSupport event="onchange" rerender="addresses" action="{!swapAddress}"/>
+                                        </apex:selectRadio> 
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="slds-m-bottom--small">
+                                <apex:outputPanel id="addresses">
+                                    <apex:outputPanel rendered="{!whichAddress == 'billing'}"> 
+                                        <div class="slds-form-element slds-m-bottom--small slds-col">
+                                            <label class="slds-form-element__label">Account Name</label>
+                                            <div class="slds-form-element__control">
+                                                <apex:inputField styleClass="slds-input" type="text" label="Account Name" value="{!acct.name}" />
+                                            </div>
+                                        </div>
+                                        <div class="slds-form-element slds-m-bottom--small slds-col">
+                                            <label class="slds-form-element__label">Billing Address</label>
+                                            <div class="slds-form-element__control">
+                                                <apex:inputField styleClass="slds-input" type="text" label="Billing Street" value="{!acct.billingStreet}"/>
+                                            </div>
+                                            <div class="slds-grid"> 
+                                                <div class="slds-form-element__control slds-col">
+                                                    <label class="slds-form-element__label">City</label>
+                                                    <apex:inputField styleClass="slds-input" type="text" label="Billing City" value="{!acct.billingCity}" />
+                                                </div>
+                                                <div class="slds-form-element__control slds-col" style="max-width:50px;" >
+                                                    <label class="slds-form-element__label">ST</label>
+                                                    <apex:inputField styleClass="slds-input" type="text" label="Billing State" value="{!acct.billingState}"/>
+                                                </div>
+                                                <div class="slds-form-element__control slds-col" style="max-width:70px;">
+                                                    <label class="slds-form-element__label">Country</label>
+                                                    <apex:inputField styleClass="slds-input" type="text" label="Billing Country Code" value="{!acct.billingCountry}"/>
+                                                </div>
+                                                <div class="slds-form-element__control slds-col" style="max-width:80px;">
+                                                    <label class="slds-form-element__label">Zip</label>
+                                                    <apex:inputField styleClass="slds-input" type="text" label="Billing Postal Code" value="{!acct.billingPostalCode}"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel rendered="{!whichAddress == 'shipping'}"> 
+                                        <div class="slds-form-element slds-m-bottom--small slds-col">
+                                            <label class="slds-form-element__label">Account Name</label>
+                                            <div class="slds-form-element__control">
+                                                <apex:inputField styleClass="slds-input" type="text" label="Account Name" value="{!acct.name}" />
+                                            </div>
+                                        </div>
+                                        <div class="slds-form-element slds-m-bottom--small slds-col">
+                                            <label class="slds-form-element__label">Shipping Address</label>
+                                            <div class="slds-form-element__control">
+                                                <apex:inputField styleClass="slds-input" type="text" label="Shipping Street" value="{!acct.shippingStreet}"/>
+                                            </div>
+                                            <div class="slds-grid"> 
+                                                <div class="slds-form-element__control slds-col">
+                                                    <label class="slds-form-element__label">City</label>
+                                                    <apex:inputField styleClass="slds-input" type="text" label="Shipping City" value="{!acct.shippingCity}" />
+                                                </div>
+                                                <div class="slds-form-element__control slds-col" style="max-width:50px;" >
+                                                    <label class="slds-form-element__label">ST</label>
+                                                    <apex:inputField styleClass="slds-input" type="text" label="Shipping State" value="{!acct.shippingState}"/>
+                                                </div>
+                                                <div class="slds-form-element__control slds-col" style="max-width:70px;">
+                                                    <label class="slds-form-element__label">Country</label>
+                                                    <apex:inputField styleClass="slds-input" type="text" label="Shipping Country Code" value="{!acct.shippingCountry}"/>
+                                                </div>
+                                                <div class="slds-form-element__control slds-col" style="max-width:80px;">
+                                                    <label class="slds-form-element__label">Zip</label>
+                                                    <apex:inputField styleClass="slds-input" type="text" label="Shipping Postal Code" value="{!acct.shippingPostalCode}"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </apex:outputPanel>
+                                </apex:outputPanel>
+                            </div>
+                    </div>
+                </div>
+            </apex:outputPanel>
+
+            <apex:commandButton styleClass="slds-button slds-button--neutral" value="Return to Opportunity" action="{!goBack}" rendered="{!hasMessage}"/>
+        </apex:form>
+    </div>
+</body>
+<apex:includeScript value="https://code.jquery.com/jquery-2.1.4.min.js"/>
+<script>
+  function changeValue(input, textid) {
+    document.getElementById(textid).value = input.checked;
+  }
+
+  function isSubmittable() {
+    var inputs = $('form .slds-grid input[type="text"]');
+    return inputs.filter(function() {
+        return $(this).val() === "";
+    }).length === 0;
+  }
+
+  $(document).ready(function() { 
+    $('#saveAppInstallCampaign').hide();
+    $('.edit').next('.slds-lookup').hide();
+    $('.edit').click(function(event) {
+      event.preventDefault();
+      $(this).next('.slds-lookup').show();
+      $(this).hide();
+    });
+
+    var inputs = $('form .slds-grid input[type="text"]');
+    inputs.on('load blur', function() {
+        var good = isSubmittable();
+        if (good) {
+            $('.submit-order-button').prop('disabled', false);
+        } else {
+            $('.submit-order-button').prop('disabled', true);
+        }
+    });
+  });
+</script>
+</html>
+</apex:page>

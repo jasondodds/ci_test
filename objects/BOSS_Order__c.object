@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <enableActivities>true</enableActivities>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>Account__c</fullName>
+        <label>Account</label>
+        <referenceTo>Account</referenceTo>
+        <relationshipName>Orders</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Campaign__c</fullName>
+        <description>Defaults to related opportunity campaign, if available, but can be edited by users as desired.</description>
+        <label>Campaign</label>
+        <referenceTo>Campaign</referenceTo>
+        <relationshipLabel>BOSS Orders</relationshipLabel>
+        <relationshipName>BOSS_Orders</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Channel_Order_Type__c</fullName>
+        <formula>TEXT( Service_Order__r.CHANNEL_ORDERS__Order_Type__c )</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Channel Order Type</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Contact__c</fullName>
+        <label>Contact</label>
+        <referenceTo>Contact</referenceTo>
+        <relationshipName>Orders</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Days_to_Expiration__c</fullName>
+        <formula>License__r.sfLma__Expiration__c - TODAY()</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Days to Expiration</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>License_Install_Date__c</fullName>
+        <formula>License__r.sfLma__Install_Date__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>License Install Date</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>License_Org_ID__c</fullName>
+        <formula>License__r.sfLma__Subscriber_Org_ID__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>License Org ID</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>License_Seat_Count__c</fullName>
+        <formula>License__r.sfLma__Licensed_Seats__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>License Seat Count</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>License_Status__c</fullName>
+        <formula>TEXT(License__r.sfLma__Status__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>License Status</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>License__c</fullName>
+        <label>License</label>
+        <referenceTo>sfLma__License__c</referenceTo>
+        <relationshipLabel>BOSS Orders</relationshipLabel>
+        <relationshipName>BOSSOrders</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Max_End_Date__c</fullName>
+        <description>The latest end date for the line item details on this order.</description>
+        <inlineHelpText>The latest end date for the line item details on this order.</inlineHelpText>
+        <label>Max End Date</label>
+        <summarizedField>BOSS_Order_Detail__c.Calculated_Contract_End_Date__c</summarizedField>
+        <summaryForeignKey>BOSS_Order_Detail__c.BOSS_Order__c</summaryForeignKey>
+        <summaryOperation>max</summaryOperation>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>Months_To_Expiration__c</fullName>
+        <formula>MONTH( License__r.sfLma__Expiration__c) - MONTH(TODAY())</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Months To Expiration</label>
+        <precision>18</precision>
+        <scale>2</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Opportunity_URL__c</fullName>
+        <label>Opportunity URL</label>
+        <type>Url</type>
+    </fields>
+    <fields>
+        <fullName>Opportunity__c</fullName>
+        <label>Opportunity</label>
+        <referenceTo>Opportunity</referenceTo>
+        <relationshipName>Orders</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Order_License_Reconciliation_Status__c</fullName>
+        <description>This is for order fulfillment tracking. Indicate &apos;reconciled&apos; if this order has been applied fully and correctly to the related license.</description>
+        <inlineHelpText>This is for order fulfillment tracking. Indicate &apos;reconciled&apos; if this order has been applied fully and correctly to the related license.</inlineHelpText>
+        <label>Order-License Reconciliation Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Reconciled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Unreconciled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Org_s_Salesforce_Seat_Count__c</fullName>
+        <label>Org&apos;s Salesforce Seat Count</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Package_Version__c</fullName>
+        <formula>License__r.sfLma__Package_Version__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Package Version</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Salesforce_Edition__c</fullName>
+        <formula>License__r.sfLma__Org_Type__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Salesforce Edition</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Sandbox__c</fullName>
+        <formula>License__r.sfLma__Is_Sandbox__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Sandbox?</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Service_Order_Status_Formula__c</fullName>
+        <formula>TEXT( Service_Order__r.CHANNEL_ORDERS__Service_Order_Status__c )</formula>
+        <label>Service Order Status Formula</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Service_Order_Status__c</fullName>
+        <label>Service Order Status</label>
+        <length>255</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Service_Order_URL__c</fullName>
+        <label>Service Order URL</label>
+        <type>Url</type>
+    </fields>
+    <fields>
+        <fullName>Service_Order__c</fullName>
+        <label>Service Order</label>
+        <referenceTo>CHANNEL_ORDERS__Service_Order__c</referenceTo>
+        <relationshipLabel>BOSS Orders</relationshipLabel>
+        <relationshipName>BOSS_Orders</relationshipName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Service_Start_Date__c</fullName>
+        <formula>Service_Order__r.CHANNEL_ORDERS__Service_Start_Date__c</formula>
+        <label>Service Start Date</label>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Total_Net_ARR_ACV__c</fullName>
+        <description>Sum of Net ARR from order detail line items.</description>
+        <inlineHelpText>Sum of Net ARR from order detail line items.</inlineHelpText>
+        <label>Total Net ARR/Annual Contract Value-ACV</label>
+        <summarizedField>BOSS_Order_Detail__c.Net_ARR__c</summarizedField>
+        <summaryForeignKey>BOSS_Order_Detail__c.BOSS_Order__c</summaryForeignKey>
+        <summaryOperation>sum</summaryOperation>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>Total_Net_MRR__c</fullName>
+        <description>Sum of Net MRR from order detail line items.</description>
+        <inlineHelpText>Sum of Net MRR from order detail line items.</inlineHelpText>
+        <label>Total Net MRR</label>
+        <summarizedField>BOSS_Order_Detail__c.Net_MRR__c</summarizedField>
+        <summaryForeignKey>BOSS_Order_Detail__c.BOSS_Order__c</summaryForeignKey>
+        <summaryOperation>sum</summaryOperation>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>Total_Net_Seats__c</fullName>
+        <description>Sum of Net Seats from order detail line items.</description>
+        <inlineHelpText>Sum of Net Seats from order detail line items.</inlineHelpText>
+        <label>Total Net Seats</label>
+        <summarizedField>BOSS_Order_Detail__c.Net_Seats__c</summarizedField>
+        <summaryForeignKey>BOSS_Order_Detail__c.BOSS_Order__c</summaryForeignKey>
+        <summaryOperation>sum</summaryOperation>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>Used_Licenses__c</fullName>
+        <formula>License__r.sfLma__Used_Licenses__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Used Licenses</label>
+        <precision>18</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>Years_to_Expiration__c</fullName>
+        <formula>YEAR( License__r.sfLma__Expiration__c) - YEAR(TODAY())</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Years to Expiration</label>
+        <precision>18</precision>
+        <scale>2</scale>
+        <type>Number</type>
+    </fields>
+    <label>BOSS Order</label>
+    <nameField>
+        <displayFormat>BO-{0000}</displayFormat>
+        <label>Order Name</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>BOSS Orders</pluralLabel>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>
