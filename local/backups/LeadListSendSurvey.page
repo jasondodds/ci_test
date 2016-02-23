@@ -1,0 +1,77 @@
+<apex:page standardController="Lead" extensions="SendSurveyButtonController" recordSetVar="leads" showHeader="true" sidebar="false" standardStylesheets="false">
+<link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.qualtrics, 'public/lib/bootstrap-3.3.4/dist/css/bootstrap.min.css')}"/>
+<div class="bootstrap-namespace">
+	<div id="center">
+		<div class="ContentContainer">
+			<apex:form >
+				<!-- ACTION FUNCTIONS -->
+				<apex:actionFunction name="createPanel" action="{!createPanelFromLeadList}" status="showStatus"  oncomplete="querySurveys();"/>
+				<apex:actionFunction name="querySurveys" action="{!queryAllSurveys}" rerender="panelInfo, surveyList, errors" status="showStatus" />
+				<!-- CONTENT -->
+				<apex:outputPanel id="all">
+					<apex:outputPanel id="errors">
+						 <apex:repeat value="{!ErrorList}" var="error" id="errorlist">
+						        <apex:outputText value="{!error}" id="error"/><br/>
+						</apex:repeat>
+					</apex:outputPanel>
+
+					<apex:outputPanel id="formDisplay" rendered="{!hasCredentials}">
+						<apex:actionStatus startText="Connecting to Qualtrics, please wait..." id="showStatus" />
+
+						<apex:outputPanel id="panelInfo">
+							<apex:outputPanel id="panelInfoData" rendered="{!panelCreated}">
+								<apex:outputText value="Panel {0} created."><!-- with {1} recipients added.">-->
+			       					<apex:param value="'{!panelName}'"/>
+							       	<!--<apex:param value=" {!recipientsAdded}"/>-->
+							    </apex:outputText><br/><br/>
+							    <apex:outputText value="{0} recipient without an email address has been skipped." rendered="{!leadsSkipped = 1}">
+							    	<apex:param value="{!leadsSkipped}"/>
+							    </apex:outputText> 
+								<apex:outputText value="{0} recipients without email addresses have been skipped." rendered="{!leadsSkipped > 1}">
+							    	<apex:param value="{!leadsSkipped}"/>
+							    </apex:outputText> <br/><br/>						</apex:outputPanel>
+						</apex:outputPanel>
+
+						<apex:outputPanel id="surveyList">
+							<apex:outputPanel id="surveyListData" rendered="{!panelCreated}">
+								<h4>Please select a survey</h4><br/><br/>
+								<apex:repeat value="{!surveys}" var="surveyOption" id="surveyTable">
+									<input type="radio" name="surveys" value="{!surveyOption.SurveyID}" onclick="changeValue(this,'{!$Component.RadioButtonValue}');"/>
+								 	{!surveyOption.SurveyName}<br/>
+							    </apex:repeat>
+							    <apex:outputPanel rendered="{!surveys.size == 0}">
+							         <br/><p>You do not have any surveys in your Qualtrics account.</p>
+							    </apex:outputPanel>
+								<br/><br/>
+
+								<h4>Or select from the following quickstarts:</h4><br/><br/>
+								<apex:dataTable value="{!quickStartNames}" var="quickstart" id="quickstartTable">
+									<apex:column >
+										<input type="radio" name="surveys" value="{!quickstart}" onclick="changeValue(this,'{!$Component.RadioButtonValue}');" /> {!quickstart}
+									</apex:column>
+								</apex:dataTable>
+								<br/><br/>
+								<apex:commandButton action="{!save}" value="Select Survey" id="saveButton"/>
+							</apex:outputPanel>
+						</apex:outputPanel>
+					</apex:outputPanel>
+				</apex:outputPanel>
+				<apex:inputHidden value="{!selectedValue}" id="RadioButtonValue" />
+	 			</apex:form>
+	
+			    <c:QualtricsLoginForm rendered="{!NOT(hasCredentials)}" pageController="{!pageCont}" />
+
+			</div>
+		</div>
+	</div>
+	<!-- JS CODE -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script>
+		$(document).ready(function(){
+		   createPanel();
+		});
+		function changeValue(input, textid) {
+			document.getElementById(textid).value = input.value;
+		}
+	</script>
+</apex:page>

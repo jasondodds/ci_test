@@ -1,0 +1,9 @@
+[
+	{"name":"Brain Certified NPS Relationship","url":"https://s3-us-west-1.amazonaws.com/codesciencedev/qualtrics/QualtricsSampleSurvey.json"},
+	{"name":"Brain Certified NPS Touchpoint","url":"https://s3-us-west-1.amazonaws.com/codesciencedev/qualtrics/QualtricsSampleSurvey.json"},
+	{"name":"Win/Loss - Win","url":"https://s3-us-west-1.amazonaws.com/codesciencedev/qualtrics/QualtricsSampleSurvey.json"},
+	{"name":"Win/Loss - Loss","url":"https://s3-us-west-1.amazonaws.com/codesciencedev/qualtrics/QualtricsSampleSurvey.json"},
+	{"name":"Pre-Meeting Survey","url":"https://s3-us-west-1.amazonaws.com/codesciencedev/qualtrics/QualtricsSampleSurvey.json"},
+	{"name":"Support Call Report Card","url":"https://s3-us-west-1.amazonaws.com/codesciencedev/qualtrics/QualtricsSampleSurvey.json"},
+	{"name":"Post Implementation Survey","url":"https://s3-us-west-1.amazonaws.com/codesciencedev/qualtrics/QualtricsSampleSurvey.json"}
+]

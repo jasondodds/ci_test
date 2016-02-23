@@ -1,0 +1,235 @@
+<apex:component controller="QualtricsLoginController" allowDML="true" id="loginFormComponent">
+<apex:attribute name="pageController" description="My controller" type="SendSurveyButtonController" assignTo="{!owningPage}" required="false"/>
+<apex:attribute name="pageQController" description="My controller" type="QualtricsSettingsController" assignTo="{!qPage}" required="false"/>
+<apex:attribute name="pageVController" description="My controller" type="QualtricsVocalizeController" assignTo="{!vPage}" required="false"/>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <apex:stylesheet value="{!URLFOR($Resource.SLDS121, 'SLDS12.1/assets/styles/salesforce-lightning-design-system-vf.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.styles, 'styles/main.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SLDS121, 'SLDS12.1/assets/icons/utility-sprite/svg/symbols.svg')}" />
+
+    </head>
+    <style>
+    body {
+        margin: 0; /* reset */    
+        /* mimics new standard layout negative space - set main .slds class content to white background */
+        background-color: rgb(244, 246, 249);
+    }
+    /* mimics new standard layout negative space - set main .slds class content to white background */
+    .slds {
+        background-color: #fff!important;
+        border-bottom: 0!important; /* don't need the bottom border */
+    }
+    html body.sfdcBody { /* fix for Aloha and Lightning Experience */
+        padding: 0!important;
+    }
+
+    #passwordSpan {
+        display: block;
+    }
+    #tokenSpan{
+        display: none;
+    }
+    .slds-page-header {
+        background: url("{!URLFOR($Resource.styles, 'styles/images/qualtrics-logo.png')}") top left no-repeat!important;
+        padding:24px 24px 12px 0px!important;
+        border-top: 3px solid #B9131A;
+        background-color: transparent!important;
+        min-height: 120px;
+        border-bottom: 0px!important;
+    }
+    .slds-form-element__label {
+           min-width: 100px;
+        text-align: right;
+    }
+    #instruction {
+        margin-top: 8rem;
+    }
+    .qualtrics-green {
+        background-color: #04B26E !important;
+        border-color: #04B26E !important;
+    }
+    .qualtrics-red {
+        background-color: #D64541 !important;
+        border-color: #D64541 !important;
+    }
+    .status-div {
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        right: 0; 
+        bottom: 0; 
+        opacity: 0.5; 
+        z-index: 1000; 
+        background-color: #fff;        
+    }
+    .status-spinner-div {
+        position: fixed; 
+        left: 0; 
+        top: 0; 
+        bottom: 0; 
+        right: 0; 
+        z-index: 1001; 
+        margin: 15% 50%;
+    }
+    </style>
+   
+    <body>
+        <apex:form id="login" styleClass="slds-form--inline">
+
+            <div class="slds">
+                <apex:actionStatus id="showStatus" rendered="{! ErrorList.size == 0}">
+                    <apex:facet name="start">
+                        <div class="status-div">
+                        &nbsp;
+                        </div>
+                        <div class="slds-spinner--large status-spinner-div">
+                          <img src="{!URLFOR($Resource.SLDS121, 'SLDS12.1/assets/images/spinners/slds_spinner_brand.gif')}" alt="Loading..." />
+                        </div>
+                    </apex:facet>
+                </apex:actionStatus>
+                <header class="slds-page-header intro">
+                    <div id="instruction" class="slds-text-heading--small slds-m-bottom--medium">        
+                        To set up access to your Qualtrics account, enter your username and password or token and click submit.
+                        <br /><br />
+                        Your account data (but not your password) will be saved and used each time you access Qualtrics from within Salesforce. 
+                    </div>
+                </header>
+
+                <apex:outputPanel id="successMessage" rendered="{!isComplete && hasMadeCanvasRequest}">
+                    Your settings have been created, you can now use Qualtrics from within Salesforce.
+                </apex:outputPanel>
+                
+                <apex:outputPanel id="form" rendered="{!NOT(isComplete) && !hasMadeCanvasRequest}">
+                 
+                    <div class="slds-container--medium">
+
+                        <div class="slds-box slds-p-around--large">
+                            <h4 class="slds-text-heading--small">Step 1: Enter Username</h4>
+                            
+                            <div class="slds-form-element slds-m-around--medium">
+                              <label class="slds-form-element__label" for="userName">Username:</label>
+                              <div class="slds-form-element__control">
+                                <apex:inputText styleClass="slds-input" value="{!userName}" id="userName" html-placeholder="username" />
+                              </div>
+                            </div>
+                            
+                            <div id="passwordSpan">
+                                <h4 class="slds-text-heading--small">Step 2: Enter Password</h4>
+                                <div class="slds-form-element slds-m-around--medium">
+                                    <label class="slds-form-element__label" for="password">Password:</label>
+                                    <div class="slds-form-element__control">
+                                        <apex:inputSecret styleClass="slds-input" value="{!password}" id="password" html-placeholder="password" />
+                                    </div>
+                                </div>
+                                <div class="slds-p-around--medium">
+                                    <a href="#" onclick="$('#passwordSpan').toggle();$('#tokenSpan').toggle();return false;">Are you an SSO User? Click here to enter your API Token. </a>
+                                </div>
+                            </div>
+                            
+                            <div id="tokenSpan">
+                                <h4 class="slds-text-heading--small">Step 2: Enter Token</h4>
+                                
+                                
+                                <div class="slds-form-element slds-m-around--medium">
+                                    <label class="slds-form-element__label" for="token">Token:</label>
+                                    <div class="slds-form-element__control">
+                                        <apex:inputSecret styleClass="slds-input" value="{!token}" id="token" html-placeholder="token" />
+                                    </div>
+                                    <small class="slds-text-body--small">
+                                        (<a href="http://www.qualtrics.com/university/researchsuite/developer-tools/api-integration/qualtrics-rest-api/" target="blank">Need help finding your Token and Username?</a>)
+                                    </small>    
+                                </div>
+                                <div class="slds-p-around--medium">
+                                    <a href="#" onclick="$('#passwordSpan').toggle();$('#tokenSpan').toggle();return false;">Enter your password instead. </a>
+                                </div>
+                            </div>
+                            
+                            <div class="slds-container slds-text-align--right">
+                                <apex:commandButton action="{!save}" value="Submit" id="theButton" styleClass="slds-button slds-button--brand slds-right qualtrics-green" status="showStatus" rerender="login" />
+                            </div>
+
+                            <div class="slds-container">
+                                <apex:outputPanel id="all" >
+                                    <apex:outputPanel id="errors">
+                                        <apex:repeat value="{!errorList}" var="error" id="errorlist">
+                                            <div class="slds-boxx slds-box--x-small slds-theme--warning">
+                                                <apex:outputText value="{!error}" id="error" styleClass="alert alert-danger" />
+                                            </div>
+                                        </apex:repeat>
+                                     </apex:outputPanel>
+                                 </apex:outputPanel>
+                            </div>
+
+                        </div>
+                        
+                        <div class="slds-box slds-m-vertical--large no-account">     
+                            <p class="slds-text-heading--small">
+                                <img src="{!URLFOR($Resource.SLDS121, '/SLDS12.1/assets/icons/utility/info_60.png')}" style="width: 18px; margin-top: -4px;" />
+                                Don't have a Qualtrics account? <a href="https://salesforcetrial.qualtrics.com/ControlPanel/Register.php?BrandID=salesforcetrial" target="_blank">Click here</a> to sign up.
+                            </p>
+                        </div>
+
+                    </div>
+                </apex:outputPanel>
+
+                <apex:outputPanel id="canvasPanel" rendered="{!isComplete && !hasMadeCanvasRequest}">
+                    <div class="slds-container--medium">
+                        <div class="slds-box slds-p-around--large">
+                            <label class="slds-form-element__label" for="token">Connecting Qualtrics to Salesforce...</label>
+                            <apex:actionFunction name="finishLogin" action="{!setComplete}" status="showStatus" />
+                            <div id="authOnlyCanvasContainer" width="0px" height="0px" ></div>
+                            <apex:canvasApp developerName="Qualtrics_Survey" containerId="authOnlyCanvasContainer" width="0px" height="0px" parameters="{!requestParamJSON}" scrolling="auto" onCanvasAppLoad="app.loadCanvasListeners();finishLogin();" />
+                        </div>
+                    </div>
+                </apex:outputPanel>
+            </div>
+        </apex:form>
+
+    </body>
+    <!-- JS CODE -->
+    <!--<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>-->
+    <apex:includeScript value="{!URLFOR($Resource.qualtrics, 'qualtrics/public/lib/jquery-2.1.3/jquery.min.js')}"/>
+    <script>
+        /* Canvas Contoller override */
+        (function(global) {
+          var module = function() {
+            function subscribe(event) {
+              Sfdc.canvas.parent.subscribe(event)
+            }
+            function unsubscribe(event) {
+              Sfdc.canvas.parent.unsubscribe(event)
+            }
+            function publish(event) {
+              Sfdc.canvas.parent.publish(event)
+            }
+            function resize(size, target) {
+              Sfdc.canvas.parent.resize(size, target)
+            }
+            return{subscribe:subscribe, unsubscribe:unsubscribe, publish:publish, resize:resize}
+          }();
+          global.Sfdc = global.Sfdc || {};
+          global.Sfdc.canvas = global.Sfdc.canvas || {};
+          global.Sfdc.canvas.controller = module
+        })(this);
+
+        var app = app || {};
+        app.canvasListenersActive = false;
+         
+        app.loadCanvasListeners = function(){
+            app.resizeIframe();
+        };
+        app.resizeIframe = function(){
+        };
+
+        /* End Canvas code */
+        $(document).ready(function(){
+
+        });
+    </script>
+
+</html>
+</apex:component>
